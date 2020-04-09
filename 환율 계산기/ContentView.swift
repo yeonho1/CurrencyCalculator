@@ -55,6 +55,7 @@ struct ContentView: View {
     @State var whichDir = "toWon"
     @State var she = ""
     @State var previousCurr = ""
+    @State var dir = "toWon"
     let availableCurr = [
         ["호주 달러 AUD","AUD"],
         ["브라질 헤알 BRL","BRL"],
@@ -191,21 +192,64 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             Form {
+                HStack {
+                    if(dir == "toWon") {
+                        Text("\(currencytype[otherCurrency]!) ").frame(alignment: .leading)
+                        Spacer()
+                        Button(action: {
+                            if (self.dir == "toWon") {
+                                self.dir = "fromWon"
+                            } else {
+                                self.dir = "toWon"
+                            }
+                        }) {
+                            Image(systemName: "arrow.right.arrow.left.circle.fill")
+                        }.frame(alignment: .center)
+                        Spacer()
+                        Text(" 한국 원").frame(alignment: .trailing)
+                    } else {
+                        Text("한국 원 ").frame(alignment: .leading)
+                        Spacer()
+                        Button(action: {
+                            if (self.dir == "toWon") {
+                                self.dir = "fromWon"
+                            } else {
+                                self.dir = "toWon"
+                            }
+                        }) {
+                            Image(systemName: "arrow.right.arrow.left.circle.fill")
+                        }.frame(alignment: .center)
+                        Spacer()
+                        Text("\(currencytype[otherCurrency]!)").frame(alignment: .trailing)
+                    }
+                }.frame(maxWidth: .infinity)
+                /*
+                Picker("", selection: $whichDir){
+                    Text("\(currencytype[otherCurrency]!) --> 한국 원").tag("toWon")
+                    Text("한국 원 --> \(currencytype[otherCurrency]!)").tag("fromWon")
+                }.pickerStyle(SegmentedPickerStyle()).padding()
+                */
                 Section(header: Text("")) {
-                    Picker("", selection: $whichDir){
-                        Text("\(currencytype[otherCurrency]!) --> 한국 원").tag("toWon")
-                        Text("한국 원 --> \(currencytype[otherCurrency]!)").tag("fromWon")
-                    }.pickerStyle(SegmentedPickerStyle()).padding()
-                }
-                Section(header: Text("")) {
-                    if(whichDir == "fromWon"){
+                    if(dir == "fromWon"){
                         Text("\((input as NSString).floatValue) 한국 원")
                         Text(" = \((input as NSString).floatValue / ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.3f") \(currencytype[otherCurrency]!)")
-                        TextField("환산할 한국 원 (KRW)", text: $input).keyboardType(.decimalPad)
                     }else{
                         Text("\((input as NSString).floatValue) \(currencytype[otherCurrency]!)")
                         Text(" = \((input as NSString).floatValue * ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.2f") 원")
-                        TextField("환산할 \(currencytype[otherCurrency]!) (\(otherCurrency))", text: $input).keyboardType(.decimalPad)
+                    }
+                    HStack {
+                        if(dir == "fromWon") {
+                            TextField("환산할 한국 원 (KRW)", text: $input).keyboardType(.decimalPad)
+                        } else {
+                            TextField("환산할 \(currencytype[otherCurrency]!) (\(otherCurrency))", text: $input).keyboardType(.decimalPad)
+                        }
+                        Button(action: {
+                            UIApplication.shared.windows
+                            .first { $0.isKeyWindow }?
+                            .endEditing(true)
+                        }) {
+                            Image(systemName: "arrowtriangle.down")
+                        }
                     }
                 }
                 Section(header: Text("")) {
@@ -213,8 +257,7 @@ struct ContentView: View {
                     Text("1 \(currencytype[otherCurrency]!)당 가격: \(getCurrency(currency: otherCurrency)) 한국 원")
                 }
                 Section(header: Text("")) {
-                    Picker(selection: $abc, label: Text("설정")) {
-                        Text("환산 대상 단위 설정")
+                    Picker(selection: $abc, label: Text("환산 대상 화폐 단위 설정")) {
                         Picker("", selection: $otherCurrency) {
                             ForEach(0 ..< availableCurr.count) {
                                 Text(self.availableCurr[$0][0]).tag(self.availableCurr[$0][1])

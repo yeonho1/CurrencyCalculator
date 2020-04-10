@@ -194,8 +194,7 @@ struct ContentView: View {
             Form {
                 HStack {
                     if(dir == "toWon") {
-                        Text("\(currencytype[otherCurrency]!) ").frame(alignment: .leading)
-                        Spacer()
+                        Text("\(currencytype[otherCurrency]!)").frame(maxWidth: .infinity, alignment: .leading)
                         Button(action: {
                             if (self.dir == "toWon") {
                                 self.dir = "fromWon"
@@ -204,12 +203,10 @@ struct ContentView: View {
                             }
                         }) {
                             Image(systemName: "arrow.right.arrow.left.circle.fill")
-                        }.frame(alignment: .center)
-                        Spacer()
-                        Text(" 한국 원").frame(alignment: .trailing)
+                        }.frame(maxWidth: .infinity, alignment: .center)
+                        Text("한국 원").frame(maxWidth: .infinity, alignment: .trailing)
                     } else {
-                        Text("한국 원 ").frame(alignment: .leading)
-                        Spacer()
+                        Text("한국 원").frame(maxWidth: .infinity, alignment: .leading)
                         Button(action: {
                             if (self.dir == "toWon") {
                                 self.dir = "fromWon"
@@ -218,9 +215,8 @@ struct ContentView: View {
                             }
                         }) {
                             Image(systemName: "arrow.right.arrow.left.circle.fill")
-                        }.frame(alignment: .center)
-                        Spacer()
-                        Text("\(currencytype[otherCurrency]!)").frame(alignment: .trailing)
+                        }.frame(maxWidth: .infinity, alignment: .center)
+                        Text("\(currencytype[otherCurrency]!)").frame(maxWidth: .infinity, alignment: .trailing)
                     }
                 }.frame(maxWidth: .infinity)
                 /*
@@ -231,11 +227,11 @@ struct ContentView: View {
                 */
                 Section(header: Text("")) {
                     if(dir == "fromWon"){
-                        Text("\((input as NSString).floatValue) 한국 원")
-                        Text(" = \((input as NSString).floatValue / ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.3f") \(currencytype[otherCurrency]!)")
+                        Text("\((input as NSString).floatValue, specifier: "%.2f") 한국 원")
+                        Text(" = \((input as NSString).floatValue / ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.2f") \(currencytype[otherCurrency]!)")
                     }else{
-                        Text("\((input as NSString).floatValue) \(currencytype[otherCurrency]!)")
-                        Text(" = \((input as NSString).floatValue * ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.2f") 원")
+                        Text("\((input as NSString).floatValue, specifier: "%.2f") \(currencytype[otherCurrency]!)")
+                        Text(" = \((input as NSString).floatValue * ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.2f") 한국 원")
                     }
                     HStack {
                         if(dir == "fromWon") {
@@ -253,17 +249,14 @@ struct ContentView: View {
                     }
                 }
                 Section(header: Text("")) {
-                    Text("환산 대상 단위: \(currencytype[otherCurrency]!) (\(otherCurrency))")
-                    Text("1 \(currencytype[otherCurrency]!)당 가격: \(getCurrency(currency: otherCurrency)) 한국 원")
-                }
-                Section(header: Text("")) {
-                    Picker(selection: $abc, label: Text("환산 대상 화폐 단위 설정")) {
+                    Picker(selection: $abc, label: Text("환산 대상 단위: \(currencytype[otherCurrency]!) (\(otherCurrency))")) {
                         Picker("", selection: $otherCurrency) {
                             ForEach(0 ..< availableCurr.count) {
                                 Text(self.availableCurr[$0][0]).tag(self.availableCurr[$0][1])
                             }
                         }.pickerStyle(WheelPickerStyle())
                     }
+                    Text("1 \(currencytype[otherCurrency]!)당 가격: \(getCurrency(currency: otherCurrency)) 한국 원")
                 }
             }.navigationBarTitle("환율 계산기")
         }

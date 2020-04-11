@@ -56,6 +56,9 @@ struct ContentView: View {
     @State var she = ""
     @State var previousCurr = ""
     @State var dir = "toWon"
+    @State var fromAPI = true
+    @State var customCurrency = ""
+    @State var customPrice = ""
     let availableCurr = [
         ["호주 달러 AUD","AUD"],
         ["브라질 헤알 BRL","BRL"],
@@ -194,7 +197,11 @@ struct ContentView: View {
             Form {
                 HStack {
                     if(dir == "toWon") {
-                        Text("\(currencytype[otherCurrency]!)").frame(maxWidth: .infinity, alignment: .leading)
+                        if(fromAPI) {
+                            Text("\(currencytype[otherCurrency]!)").frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            Text("\(customCurrency)").frame(maxWidth: .infinity, alignment: .leading)
+                        }
                         Button(action: {
                             if (self.dir == "toWon") {
                                 self.dir = "fromWon"
@@ -216,7 +223,11 @@ struct ContentView: View {
                         }) {
                             Image(systemName: "arrow.right.arrow.left.circle.fill")
                         }.frame(maxWidth: .infinity, alignment: .center)
-                        Text("\(currencytype[otherCurrency]!)").frame(maxWidth: .infinity, alignment: .trailing)
+                        if(fromAPI) {
+                            Text("\(currencytype[otherCurrency]!)").frame(maxWidth: .infinity, alignment: .trailing)
+                        } else {
+                            Text("\(customCurrency)").frame(maxWidth: .infinity, alignment: .trailing)
+                        }
                     }
                 }.frame(maxWidth: .infinity)
                 /*
@@ -228,16 +239,29 @@ struct ContentView: View {
                 Section(header: Text("")) {
                     if(dir == "fromWon"){
                         Text("\((input as NSString).floatValue, specifier: "%.2f") 한국 원")
-                        Text(" = \((input as NSString).floatValue / ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.2f") \(currencytype[otherCurrency]!)")
+                        if(fromAPI) {
+                            Text(" = \((input as NSString).floatValue / ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.2f") \(currencytype[otherCurrency]!)")
+                        } else {
+                            Text(" = \((input as NSString).floatValue / ((customPrice) as NSString).floatValue, specifier: "%.2f") \(customCurrency)")
+                        }
                     }else{
-                        Text("\((input as NSString).floatValue, specifier: "%.2f") \(currencytype[otherCurrency]!)")
-                        Text(" = \((input as NSString).floatValue * ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.2f") 한국 원")
+                        if(fromAPI) {
+                            Text("\((input as NSString).floatValue, specifier: "%.2f") \(currencytype[otherCurrency]!)")
+                            Text(" = \((input as NSString).floatValue * ((getCurrency(currency: otherCurrency)) as NSString).floatValue, specifier: "%.2f") 한국 원")
+                        } else{
+                            Text("\((input as NSString).floatValue, specifier: "%.2f") \(customCurrency)")
+                            Text(" = \((input as NSString).floatValue * ((customPrice) as NSString).floatValue, specifier: "%.2f") 한국 원")
+                        }
                     }
                     HStack {
                         if(dir == "fromWon") {
                             TextField("환산할 한국 원 (KRW)", text: $input).keyboardType(.decimalPad)
                         } else {
-                            TextField("환산할 \(currencytype[otherCurrency]!) (\(otherCurrency))", text: $input).keyboardType(.decimalPad)
+                            if(fromAPI) {
+                                TextField("환산할 \(currencytype[otherCurrency]!) (\(otherCurrency))", text: $input).keyboardType(.decimalPad)
+                            } else {
+                                TextField("환산할 \(customCurrency)", text: $input).keyboardType(.decimalPad)
+                            }
                         }
                         Button(action: {
                             UIApplication.shared.windows
@@ -249,14 +273,24 @@ struct ContentView: View {
                     }
                 }
                 Section(header: Text("")) {
-                    Picker(selection: $abc, label: Text("환산 대상 단위: \(currencytype[otherCurrency]!) (\(otherCurrency))")) {
-                        Picker("", selection: $otherCurrency) {
-                            ForEach(0 ..< availableCurr.count) {
-                                Text(self.availableCurr[$0][0]).tag(self.availableCurr[$0][1])
-                            }
-                        }.pickerStyle(WheelPickerStyle())
+                    if(fromAPI) {
+                        Picker(selection: $abc, label: Text("환산 대상 단위: \(currencytype[otherCurrency]!) (\(otherCurrency))")) {
+                            Picker("", selection: $otherCurrency) {
+                                ForEach(0 ..< availableCurr.count) {
+                                    Text(self.availableCurr[$0][0]).tag(self.availableCurr[$0][1])
+                                }
+                            }.pickerStyle(WheelPickerStyle())
+                        }
+                        Text("1 \(currencytype[otherCurrency]!)당 가격: \(getCurrency(currency: otherCurrency)) 한국 원")
+                    } else {
+                        TextField("화폐단위 이름", text: $customCurrency)
+                        TextField("1 \(customCurrency) 당 가격 (원)", text: $customPrice).keyboardType(.numberPad)
                     }
-                    Text("1 \(currencytype[otherCurrency]!)당 가격: \(getCurrency(currency: otherCurrency)) 한국 원")
+                }
+                Section(header: Text("")) {
+                    Toggle(isOn: $fromAPI) {
+                        Text("인터넷으로부터 정보 얻어오기")
+                    }
                 }
             }.navigationBarTitle("환율 계산기")
         }
